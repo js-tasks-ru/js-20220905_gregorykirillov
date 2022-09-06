@@ -3,6 +3,4 @@
  * @param {*[]} arr - the array of primitive values
  * @returns {*[]} - the new array with uniq values
  */
-export function uniq(arr) {
-
-}
+export const uniq = (arr) => [...new Set(arr)];
