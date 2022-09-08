@@ -5,12 +5,13 @@
  * @returns {string} - the new string without extra symbols according passed size
  */
 export function trimSymbols(string, size) {
-  if (!size) {
-    return size === undefined ? string : '';
-  }
-  let counter = 0;
+  if (size === undefined) {return string;}
+  else if (size === 0) {return '';}
 
-  return string.split('').reduce((acc, curr) => {
+  let counter = 0;
+  const charsArr = string.split('');
+
+  return charsArr.reduce((acc, curr) => {
     if (acc.at(-1) === curr) {
       if (counter < size) {
         counter++;
