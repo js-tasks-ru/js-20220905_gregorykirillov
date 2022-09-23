@@ -58,7 +58,7 @@ export default class ColumnChart {
       if (!this.data.length) {return;}
  
       const max = Math.max(...this.data);
-      const scale = 50 / max;
+      const scale = this.chartHeight / max;
       const el = document.createElement('div');
  
       return this.data.map((value) => {
