@@ -32,7 +32,6 @@ class Tooltip {
   }
 
   handlePointerOut = () => {
-    console.log('Here');
     this.element?.remove();
     this.element = null;
   }
