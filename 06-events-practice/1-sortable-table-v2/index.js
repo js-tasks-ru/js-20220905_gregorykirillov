@@ -145,11 +145,11 @@ export default class SortableTable {
 
   remove() {
     this.element?.remove();
-    this.subElements.header.addEventListener('click', this.onSortClick);
     this.subElements = {};
   }
 
   destroy() {
+    this.subElements.header?.removeEventListener('click', this.onSortClick);
     this.remove();
   }
 }
