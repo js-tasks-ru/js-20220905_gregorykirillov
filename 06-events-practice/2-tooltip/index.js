@@ -2,6 +2,8 @@ class Tooltip {
   static #tooltip = null;
   currentTooltipText = '';
   element;
+
+  TOOLTIP_GAP = 10;
   
   initialize () {
     document.addEventListener('pointerover', this.handlePointerOver);
@@ -39,14 +41,15 @@ class Tooltip {
   handlePointerMove = e => {
     if (!this.element) {return;}
 
-    this.element.style.top = `${e.clientY + 10}px`;
-    this.element.style.left = `${e.clientX + 10}px`;
+    this.element.style.top = `${e.clientY + this.TOOLTIP_GAP}px`;
+    this.element.style.left = `${e.clientX + this.TOOLTIP_GAP}px`;
   }
 
   remove() {
     this.element?.remove();
     document.removeEventListener("pointerover", this.handlePointerOver);
     document.removeEventListener("pointerout", this.handlePointerOut);
+    document.removeEventListener("pointermove", this.handlePointerMove);
   }
 
   destroy() {
