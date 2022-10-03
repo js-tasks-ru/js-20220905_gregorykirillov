@@ -17,8 +17,8 @@ export default class SortableTable {
     this.subElements.header.addEventListener('click', this.onSortClick);
   }
 
-  onSortClick = e => {
-    const sortEl = e.target.closest('[data-sortable="true"]');
+  onSortClick = event => {
+    const sortEl = event.target.closest('[data-sortable="true"]');
     if (!sortEl) {return;}
 
     const { id } = sortEl.dataset;
@@ -149,7 +149,6 @@ export default class SortableTable {
   }
 
   destroy() {
-    this.subElements.header?.removeEventListener('click', this.onSortClick);
     this.remove();
   }
 }
