@@ -24,7 +24,7 @@ export default class SortableTable {
     this.sorted = sorted;
     this.url = new URL(url, BACKEND_URL);
 
-    this.render().then(() => this.setPaginationStart(this.paginationStart + this.PAGINATION_COUNT));
+    this.render();
   }
   
   setEventListeners() {
@@ -32,36 +32,36 @@ export default class SortableTable {
     document.addEventListener('scroll', this.handleScroll);
   }
 
-  handleScroll = () => {
+  handleScroll = async() => {
     if (window.innerHeight + document.documentElement.scrollTop <= document.documentElement.offsetHeight - this.BOTTOM_GAP) {
       return;
     }
     if (!this.isLoading && !this.allLoaded) {
       this.setLoading(true);
-      this.getNewData().then(res => {
-        if (res.length === 0) {
-          this.allLoaded = true;
+      const res = await this.getNewData();
+      if (res.length === 0) {
+        this.allLoaded = true;
 
-          return;
-        }
-        this.setData([...this.data, ...res]);
-        this.updateData();
-  
-        this.setPaginationStart(this.paginationStart + this.PAGINATION_COUNT);
-        this.setLoading(false);
-      });
+        return;
+      }
+      this.setData([...this.data, ...res]);
+      this.updateData();
+
+      this.setPaginationStart(this.paginationStart + this.PAGINATION_COUNT);
+      this.setLoading(false);
     }
   }
 
-  getNewData() {
+  async getNewData() {
     if (!this.isSortLocally) {
       this.url.searchParams.set('_sort', this.sorted.id);
       this.url.searchParams.set('_order', this.sorted.order);
     }
     this.url.searchParams.set('_start', this.paginationStart);
     this.url.searchParams.set('_end', this.paginationStart + this.PAGINATION_COUNT);
+    const data = await fetchJson(this.url);
 
-    return fetchJson(this.url).then(res => res);
+    return data;
   }
 
   setLoading(flag) {
@@ -100,18 +100,16 @@ export default class SortableTable {
     this.url.searchParams.set('_sort', id);
     this.url.searchParams.set('_order', order);
 
-    const start = this.paginationStart ? this.paginationStart - this.PAGINATION_COUNT : this.paginationStart;
     const end = this.paginationStart ? this.paginationStart : this.paginationStart + this.PAGINATION_COUNT;
 
-    this.url.searchParams.set('_start', start);
+    this.url.searchParams.set('_start', 0);
     this.url.searchParams.set('_end', end);
 
-    await fetchJson(this.url).then(res => {
-      this.setData(res);
-        
-      this.updateData();
-      this.subElements = this.getSubElements();
-    });
+    const res = await fetchJson(this.url);
+    this.setData(res);
+
+    this.updateData();
+    this.subElements = this.getSubElements();
   }
 
   onSortClick = event => {
@@ -190,10 +188,10 @@ export default class SortableTable {
     this.element = element.firstElementChild;
 
     if (this.isSortLocally) {
-      this.getNewData().then(data => {
-        this.setData(data);
-        this.sortOnClient();
-      });
+      const data = await this.getNewData();
+      
+      this.setData(data);
+      this.sortOnClient();
     } else {
       await this.sortOnServer();
     }
@@ -201,6 +199,7 @@ export default class SortableTable {
     this.subElements = this.getSubElements();
     this.updateData();
     this.setEventListeners();
+    this.setPaginationStart(this.paginationStart + this.PAGINATION_COUNT);
   }
 
   setData(data) {

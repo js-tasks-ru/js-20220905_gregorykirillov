@@ -6,15 +6,14 @@ const IMGUR_URL = 'https://api.imgur.com/3/image';
 const BACKEND_URL = 'https://course-js.javascript.ru';
 const API_PRODUCTS = '/api/rest/products';
 const API_CATEGORIES = '/api/rest/categories';
-const FIELDS = {
-  title: 'string', description: 'string', quantity: 'number', subcategory: 'string',
-  status: 'number', price: 'number', discount: 'number'
-};
 export default class ProductForm {
-  productId;
   data = {};
   categories = [];
   fileInput = null;
+  FIELDS = {
+    title: 'string', description: 'string', quantity: 'number', subcategory: 'string',
+    status: 'number', price: 'number', discount: 'number'
+  };
   
   constructor (
     productId = null,
@@ -24,7 +23,7 @@ export default class ProductForm {
   }
   
   setEventListeners() {
-    document.addEventListener('click', this.handleClick);
+    this.subElements.productForm.addEventListener('click', this.handleClick);
     this.subElements.productForm.addEventListener('submit', this.save);
   }
 
@@ -45,7 +44,7 @@ export default class ProductForm {
     if (!this.subElements) {this.subElements = this.getSubElements();}
     const { productForm } = this.subElements;
 
-    Object.keys(FIELDS).forEach(currField => {
+    Object.keys(this.FIELDS).forEach(currField => {
       const {[`${currField}`]: field } = productForm;
       this.data[currField] = field.value;
     });
@@ -78,7 +77,7 @@ export default class ProductForm {
     const data = this.data;
 
     for (const [key, value] of Object.entries(this.data)) {
-      data[key] = FIELDS[key] === 'number' ? parseInt(value) : value;
+      data[key] = this.FIELDS[key] === 'number' ? parseInt(value) : value;
     }
 
     return data;
@@ -121,7 +120,7 @@ export default class ProductForm {
     fileInput.hidden = true;
     fileInput.addEventListener('change', () => handleFileChange(fileInput));
     this.fileInputs.push(fileInput);
-    document.body.append(this.fileInput);
+    document.body.append(fileInput);
 
     fileInput.click();
   }
@@ -173,7 +172,7 @@ export default class ProductForm {
 
     if (!this.modeIsUpdate) {
       this.data = {};
-      for (const key of Object.keys(FIELDS)) { this.data[key] = ''; }
+      for (const key of Object.keys(this.FIELDS)) { this.data[key] = ''; }
       this.data['images'] = [];
     }
 
@@ -251,10 +250,10 @@ export default class ProductForm {
   }
 
   categoriesTemplate() {
-    return this.categories.map(category =>
+    return this.categories.map(category => 
       category.subcategories.map(subcategory => 
-        `<option value=${subcategory.id}>${category.title} > ${subcategory.title}</option>`)
-    );
+        `<option value="${subcategory.id}">${category.title} > ${subcategory.title}</option>`).join("")
+    ).join("");
   }
 
   imagesTemplate(image) {
@@ -283,7 +282,7 @@ export default class ProductForm {
     if (!this.subElements) {return;}
     const { productForm } = this.subElements;
 
-    Object.keys(FIELDS).forEach(currField => {
+    Object.keys(this.FIELDS).forEach(currField => {
       const {[`${currField}`]: field } = productForm;
       field.value = this?.data?.[currField] || '';
     });
@@ -322,7 +321,9 @@ export default class ProductForm {
 
   remove() {
     this.element?.remove();
+    this.subElements = {};
     this.removeEventListeners();
+    this.fileInput = null;
   }
 
   destroy() {
