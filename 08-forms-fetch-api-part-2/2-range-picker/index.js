@@ -5,22 +5,21 @@ export default class RangePicker {
   }) {
     const year = from.getFullYear();
     const month = from.getMonth();
-    const locale = navigator.userLanguage || (navigator.languages && navigator.languages.length && navigator.languages[0]) || navigator.language || navigator.browserLanguage || navigator.systemLanguage || 'en';
 
-    this.from = new Date(year, month - 1, 1);
-    this.to = new Date(year, month, 1);
+    this.from = new Date(year, month, 1);
+    this.to = new Date(year, month + 1, 1);
     this.selectedDates = {
       from,
       to
     };
     this.isCalendarOpen = false;
     this.visibleMonth = this.selectedDates.from.getMonth();
-    this.locale = locale;
+    this.locale = 'ru';
 
     this.render();
   }
 
-  async render() {
+  render() {
     const element = document.createElement('div');
     element.innerHTML = this.template();
     this.element = element.firstElementChild;
@@ -46,9 +45,12 @@ export default class RangePicker {
 
   toggleCalendar = () => {
     if (this.isCalendarOpen) {this.element.classList.remove('rangepicker_open');}
-    else {this.element.classList.add('rangepicker_open');}
+    else {
+      this.element.classList.add('rangepicker_open');
+    }
       
     this.isCalendarOpen = !this.isCalendarOpen;
+    this.subElements.selector.innerHTML = this.selectorTemplate();
   }
 
   handleSelectDate(event) {
@@ -144,6 +146,7 @@ export default class RangePicker {
   }
 
   selectorTemplate() {
+    if (!this.isCalendarOpen) {return '';}
     const monthNameFrom = this.from.toLocaleString(this.locale, {month: 'long'});
     const dateFromCopy = new Date(this.from);
     const monthNameNext = new Date(dateFromCopy.setMonth(dateFromCopy.getMonth() + 1)).toLocaleDateString(this.locale, {month: 'long'});
@@ -185,12 +188,8 @@ export default class RangePicker {
   template() {
     return `
       <div class="rangepicker">
-        <div class="rangepicker__input" data-element="input">
-          ${this.inputTemplate()}
-        </div>
-        <div class="rangepicker__selector" data-element="selector">
-          ${this.selectorTemplate()}
-        </div>
+        <div class="rangepicker__input" data-element="input">${this.inputTemplate()}</div>
+        <div class="rangepicker__selector" data-element="selector">${this.selectorTemplate()}</div>
       </div>`;
   }
 
