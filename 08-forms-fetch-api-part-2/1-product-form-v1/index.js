@@ -86,7 +86,7 @@ export default class ProductForm {
   async uploadImg(uploadButton) {
     const handleFileChange = async(fileInput) => {
       try {
-        const file = fileInput.files[0];
+        const [file] = fileInput.files;
         const formData = new FormData();
 
         formData.append('image', file);
@@ -167,8 +167,10 @@ export default class ProductForm {
   }
 
   async render() {
-    await this.getData();
-    await this.getCategories();
+    await Promise.all([
+      this.getData(),
+      this.getCategories(),
+    ]);
 
     if (!this.modeIsUpdate) {
       this.data = {};
