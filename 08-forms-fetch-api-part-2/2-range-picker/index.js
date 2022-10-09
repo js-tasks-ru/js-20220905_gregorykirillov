@@ -13,7 +13,6 @@ export default class RangePicker {
       to
     };
     this.isCalendarOpen = false;
-    this.visibleMonth = this.selectedDates.from.getMonth();
     this.locale = 'ru';
 
     this.render();
@@ -44,11 +43,7 @@ export default class RangePicker {
   }
 
   toggleCalendar = () => {
-    if (this.isCalendarOpen) {this.element.classList.remove('rangepicker_open');}
-    else {
-      this.element.classList.add('rangepicker_open');
-    }
-      
+    this.element.classList.toggle('rangepicker_open');    
     this.isCalendarOpen = !this.isCalendarOpen;
     this.subElements.selector.innerHTML = this.selectorTemplate();
   }
@@ -181,8 +176,8 @@ export default class RangePicker {
 
   inputTemplate() {
     return `
-    <span data-element="from">${this.selectedDates.from.toLocaleDateString()}</span> -
-    <span data-element="to">${this.selectedDates.to.toLocaleDateString()}</span>`;
+    <span data-element="from">${this.selectedDates.from.toLocaleDateString(this.locale)}</span> -
+    <span data-element="to">${this.selectedDates.to.toLocaleDateString(this.locale)}</span>`;
   }
 
   template() {
