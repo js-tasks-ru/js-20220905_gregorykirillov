@@ -74,10 +74,11 @@ export default class SortableList {
 
   handleGrab(event) {
     this.setElementSize();
+    this.setInitialCoords(event);
+    this.draggingElement.style.top = `${event.clientY - this.initialY + this.initialElementTop}px`;
     this.draggingElement.classList.add('sortable-list__item_dragging');
     this.draggingElement.style.width = `${this.elementWidth}px`;
 
-    this.setInitialCoords(event);
     this.placePlaceholder();
     
     document.addEventListener('pointermove', this.handleDrag);
