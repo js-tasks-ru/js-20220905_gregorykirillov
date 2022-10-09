@@ -1,4 +1,4 @@
-import escapeHtml from './utils/escape-html.js';
+import SortableList from '../2-sortable-list/index.js';
 import fetchJson from './utils/fetch-json.js';
 
 const IMGUR_CLIENT_ID = '28aaa2e823b03b1';
@@ -6,6 +6,7 @@ const IMGUR_URL = 'https://api.imgur.com/3/image';
 const BACKEND_URL = 'https://course-js.javascript.ru';
 const API_PRODUCTS = '/api/rest/products';
 const API_CATEGORIES = '/api/rest/categories';
+
 export default class ProductForm {
   data = {};
   categories = [];
@@ -45,7 +46,7 @@ export default class ProductForm {
     const { productForm } = this.subElements;
 
     Object.keys(this.FIELDS).forEach(currField => {
-      const {[`${currField}`]: field } = productForm;
+      const {[currField]: field } = productForm;
       this.data[currField] = field.value;
     });
 
@@ -73,8 +74,23 @@ export default class ProductForm {
     }
   }
 
+  getImagesInfo() {
+    const imagesList = this.subElements.imageListContainer.querySelectorAll('li');
+
+    if (!imagesList.length) {return [];}
+
+    const images = [];
+
+    for (const {children} of imagesList) {
+      images.push({ url: children[0].value, source: children[1].value });
+    }
+
+    return images;
+  }
+
   prepareData() {
     const data = this.data;
+    data.images = this.getImagesInfo();
 
     for (const [key, value] of Object.entries(this.data)) {
       data[key] = this.FIELDS[key] === 'number' ? parseInt(value) : value;
@@ -116,9 +132,11 @@ export default class ProductForm {
       this.fileInputs = [];
     }
     const fileInput = document.createElement('input');
+
     fileInput.type = 'file';
     fileInput.hidden = true;
     fileInput.addEventListener('change', () => handleFileChange(fileInput));
+    
     this.fileInputs.push(fileInput);
     document.body.append(fileInput);
 
@@ -183,10 +201,33 @@ export default class ProductForm {
     this.element = element.firstElementChild;
     
     this.subElements = this.getSubElements();
+    this.setSortableList();
     if (this.modeIsUpdate) {this.updateData();}
     this.setEventListeners();
 
     return this.element;
+  }
+
+  getSortableList() {
+    if (this.sortableList) {
+      return this.sortableList;
+    }
+
+    return this.sortableList = new SortableList({
+      items: this.data?.images?.map(image => {
+        const element = document.createElement('li');
+        element.innerHTML = this.imagesTemplate(image);
+  
+        return element.firstElementChild;
+      })
+    });
+  }
+
+  setSortableList() {
+    this.getSortableList();
+
+    const { imageListContainer } = this.subElements;
+    imageListContainer.append(this.sortableList.element);
   }
 
   template() {
@@ -211,9 +252,7 @@ export default class ProductForm {
       </div>
       <div class='form-group form-group__wide' data-element='sortable-list-container'>
         <label class='form-label'>Фото</label>
-        <div data-element='imageListContainer'><ul class='sortable-list'>
-        ${this.renderImages()}
-        </ul></div>
+        <div data-element='imageListContainer'></div>
         <button type='button' name='uploadImage' class='button-primary-outline'><span>Загрузить</span></button>
       </div>
       <div class='form-group form-group__half_left'>
@@ -274,19 +313,16 @@ export default class ProductForm {
     </li>`;
   }
 
-  renderImages() {
-    if (!this.data?.images) {return '';}
-    
-    return this.data?.images?.map(image => this.imagesTemplate(image)).join('');
-  }
-
   updateData() {
     if (!this.subElements) {return;}
     const { productForm } = this.subElements;
 
     Object.keys(this.FIELDS).forEach(currField => {
-      const {[`${currField}`]: field } = productForm;
-      field.value = this?.data?.[currField] || '';
+      try {
+        productForm[currField].value = this?.data?.[currField] ?? ''
+      } catch(err) {
+        console.error(err)
+      }
     });
 
     this.setStatus();
