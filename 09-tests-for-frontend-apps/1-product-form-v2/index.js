@@ -291,10 +291,11 @@ export default class ProductForm {
   }
 
   categoriesTemplate() {
-    return this.categories.map(category => 
-      category.subcategories?.map(subcategory => 
-        `<option value="${subcategory.id}">${category.title} > ${subcategory.title}</option>`).join("")
-    ).join("");
+    return this.categories.map(category =>
+      category.subcategories?.map(subcategory =>
+        new Option(`${category.title} > ${subcategory.title}`, subcategory.id).outerHTML
+      ).join("")
+    ).join("")
   }
 
   imagesTemplate(image) {
@@ -339,7 +340,7 @@ export default class ProductForm {
       value = 1;
     } else {
       value = this.data?.status === 1 ? 0 : 1;
-    } 
+    }
     status.children[value].setAttribute("selected", true);
   }
 
